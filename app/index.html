@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en" ng-app="dove">
+<head>
+  <meta charset="utf-8">
+  <title>Dove</title>
+  <link rel="stylesheet" type="text/css" href="/css/app.styl"/>
+  <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+  <link href='http://fonts.googleapis.com/css?family=Exo+2' rel='stylesheet' type='text/css'>
+</head>
+<body>
+
+  <div class="wrap">
+    <header>
+      <a href="/"><h1>Dove</h1></a>
+
+      <nav>
+        <a href="/files">Files</a>
+      </nav>
+    </header>
+
+    <article ng-view></article>
+  </div>
+
+  <script src="/js/lib/angular.js"></script>
+  <script src="/js/lib/angular-route.js"></script>
+  <script src="/js/lib/angular-resource.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>

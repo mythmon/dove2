@@ -1,0 +1,22 @@
+{
+  "name": "dove",
+  "version": "0.0.0",
+  "description": "Get stuff from places.",
+  "main": "index.js",
+  "author": "Mike Cooper",
+  "license": "MIT",
+  "dependencies": {
+    "xmlrpc": "~1.1.1",
+    "es6-promise": "~0.1.1",
+    "express": "~3.4.6",
+    "lvl": "0.0.2",
+    "fs-then": "~0.2.0",
+    "string-format": "~0.2.1",
+    "stylus": "~0.41.1",
+    "nib": "~1.0.1",
+    "thetvdb-api": "~0.1.0"
+  },
+  "devDependencies": {
+    "mocha": "~1.15.1"
+  }
+}
