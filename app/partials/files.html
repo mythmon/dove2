@@ -1,0 +1,13 @@
+<div class="action-bar">
+  <button class="action download" ng-disabled="selectedFiles.length === 0">
+    <i class="fa fa-download"></i>
+    Download
+  </button>
+  <button class="action organize" ng-disabled="selectedFiles.length === 0">
+    <i class="fa fa-magic"></i>
+    Organize
+  </button>
+</div>
+
+<file-tree model="files"></file-tree>
+

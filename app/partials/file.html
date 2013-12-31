@@ -1,0 +1,10 @@
+<span name="path" title="{{model.path}}" ng-click="check();">
+  <span class="icons fa-stack">
+    <i class="fa fa-stack-1x" ng-class="fontAwesomeClass"></i>
+    <i ng-show="model.checked" class="fa fa-check fa-stack-1x"
+       ng-class="{fade: faded()}"></i>
+  </span>
+  {{model.fileName}}
+</span>
+
+<file-tree model="model.children" parent="model" ng-if="model.children"></file-tree>
