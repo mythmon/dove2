@@ -1,10 +1,15 @@
-<span name="path" title="{{model.path}}" ng-click="check();">
-  <span class="icons fa-stack">
-    <i class="fa fa-stack-1x" ng-class="fontAwesomeClass"></i>
+<span name="path" title="{{model.path}}">
+  <span class="icons fa-stack" ng-click="check()">
+    <i class="fa fa-stack-1x" ng-class="fontAwesomeClass()"></i>
     <i ng-show="model.checked" class="fa fa-check fa-stack-1x"
        ng-class="{fade: faded()}"></i>
   </span>
-  {{model.fileName}}
+  <span ng-click="expandOrCheck()">
+    {{model.fileName}}
+  </span>
 </span>
 
-<file-tree model="model.children" parent="model" ng-if="model.children"></file-tree>
+<div ng-show="model.expanded">
+  <i ng-if="loading" class="fa fa-spin fa-refresh"></i>
+  <file-tree model="model.children" ng-if="model.type == 'dir'"></file-tree>
+</div>
