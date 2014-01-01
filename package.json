@@ -14,7 +14,8 @@
     "string-format": "~0.2.1",
     "stylus": "~0.41.1",
     "nib": "~1.0.1",
-    "thetvdb-api": "~0.1.0"
+    "thetvdb-api": "~0.1.0",
+    "archiver": "~0.4.10"
   },
   "devDependencies": {
     "mocha": "~1.15.1"
