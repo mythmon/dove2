@@ -29,7 +29,7 @@ dove.config(['$routeProvider', '$locationProvider',
 
 dove.controller('HomeCtrl', [function() {}]);
 
-dove.controller('FilesCtrl', ['$scope', '$q', 'Files', function($scope, $q, Files) {
+dove.controller('FilesCtrl', ['$scope', 'Files', function($scope, Files) {
   Files.query().then(function(contents) {
     $scope.files = contents.files;
   }, function(err) {
@@ -47,6 +47,17 @@ dove.controller('FilesCtrl', ['$scope', '$q', 'Files', function($scope, $q, File
       $scope.selectedFiles.splice(index, 1);
     }
   });
+
+  $scope.downloadSelected = function() {
+    var url = '/bulk?';
+    url += $scope.selectedFiles.filter(function(sel) {
+      return sel.type === 'file';
+    }).map(function(sel) {
+      return 'files=' + sel.path;
+    }).join('&');
+
+    window.location = url;
+  };
 }]);
 
 /* Services */
