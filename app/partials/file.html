@@ -6,10 +6,11 @@
   </span>
   <span ng-click="expandOrCheck()">
     {{model.fileName}}
+    <i ng-if="loading" class="fa fa-spin fa-refresh"></i>
   </span>
+  <nice-size size="model.size" ng-if="model.type === 'file'"></nice-size>
 </span>
 
 <div ng-show="model.expanded">
-  <i ng-if="loading" class="fa fa-spin fa-refresh"></i>
   <file-tree model="model.children" ng-if="model.type == 'dir'"></file-tree>
 </div>

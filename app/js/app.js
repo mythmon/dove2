@@ -36,21 +36,32 @@ dove.controller('FilesCtrl', ['$scope', 'Files', function($scope, Files) {
     console.log('err', err);
   });
 
-  $scope.selectedFiles = [];
+  $scope.selection = {
+    files: [],
+    size: 0,
+  };
 
   $scope.$on('check:up', function(e, val, file) {
-    var index = $scope.selectedFiles.indexOf(file);
+    var index = $scope.selection.files.indexOf(file);
     if (val && index === -1) {
-      $scope.selectedFiles.push(file);
+      $scope.selection.files.push(file);
+      if (file.type === 'file') {
+        $scope.selection.size += file.size;
+      }
+      console.log('added', $scope.selection);
     }
     if (!val && index > -1) {
-      $scope.selectedFiles.splice(index, 1);
+      $scope.selection.files.splice(index, 1);
+      if (file.type === 'file') {
+        $scope.selection.size -= file.size;
+      }
+      console.log('removed', $scope.selection);
     }
   });
 
-  $scope.downloadSelected = function() {
+  $scope.downloadSelection = function() {
     var url = '/bulk?';
-    url += $scope.selectedFiles.filter(function(sel) {
+    url += $scope.selection.files.filter(function(sel) {
       return sel.type === 'file';
     }).map(function(sel) {
       return 'files=' + sel.path;
@@ -64,10 +75,10 @@ dove.controller('FilesCtrl', ['$scope', 'Files', function($scope, Files) {
 
 dove.factory('Files', ['$http', function($http) {
   return {
-    query: function(path) {
+    query: function(path, params) {
       path = '/api/files/' + (path || '');
       return $http.get(path, {
-        params: {hidden: true},
+        params: params,
       }).then(function(res) {
         return res.data;
       });
@@ -163,6 +174,7 @@ function(RecursionHelper, $timeout, Files) {
 
       $scope.check = function() {
         $scope.model.checked = !$scope.model.checked;
+        fillChildren(true);
         $scope.$broadcast('check:down', $scope.model.checked, $scope.model);
         $scope.$emit('check:up', $scope.model.checked, $scope.model);
       };
@@ -180,7 +192,6 @@ function(RecursionHelper, $timeout, Files) {
       $scope.$on('check:down', function(e, val) {
         if (val !== $scope.model.checked) {
           $scope.model.checked = val;
-          $scope.$emit('check:up', val, $scope.model);
         }
       });
 
@@ -216,10 +227,16 @@ function(RecursionHelper, $timeout, Files) {
         }
       };
 
-      function fillChildren() {
-        if ($scope.full) return;
+      function fillChildren(noLimit) {
+        if ($scope.full || $scope.loading) return;
         $scope.loading = true;
-        Files.query($scope.model.path).then(function(data) {
+
+        var opts = {};
+        if (noLimit) {
+          opts.maxDepth = -1;
+        }
+
+        Files.query($scope.model.path, opts).then(function(data) {
           $scope.model.children = data.files;
           $scope.model.full = true;
           $scope.loading = false;
@@ -241,5 +258,30 @@ function(RecursionHelper, $timeout, Files) {
         });
       }
     }
+  };
+}]);
+
+dove.directive('niceSize', [function() {
+  return {
+    template: '{{niceSize()}}',
+    restrict: 'E',
+    scope: {
+      size: '=',
+    },
+    controller: function($scope) {
+      $scope.niceSize = function() {
+        var units = ['', 'KB', 'MB', 'GB', 'TB'];
+        var size = $scope.size;
+        var unitIndex = 0;
+
+        while (size > 900 && unitIndex < units.length - 1) {
+          size /= 1024.0;
+          unitIndex++;
+        }
+
+        size = Math.round(size * 10) / 10;
+        return size + units[unitIndex];
+      };
+    },
   };
 }]);

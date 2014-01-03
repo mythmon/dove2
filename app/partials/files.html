@@ -1,9 +1,10 @@
 <div class="action-bar">
-  <button class="action download" ng-disabled="selectedFiles.length === 0" ng-click="downloadSelected()">
+  <button class="action download" ng-disabled="selection.files.length === 0" ng-click="downloadSelection()">
     <i class="fa fa-download"></i>
-    Download
+    Download .zip
+    <nice-size size="selection.size" ng-if="selection.size > 0"></nice-size>
   </button>
-  <button class="action organize" ng-disabled="selectedFiles.length === 0">
+  <button class="action organize" ng-disabled="selection.files.length === 0">
     <i class="fa fa-magic"></i>
     Organize
   </button>
