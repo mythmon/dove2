@@ -41,30 +41,20 @@ dove.controller('FilesCtrl', ['$scope', 'Files', function($scope, Files) {
     size: 0,
   };
 
-  $scope.$on('check:up', function(e, val, file) {
+  $scope.$on('check:up', function() {
     function process(file) {
-      var index = $scope.selection.files.indexOf(file);
-      if (file.checked && index === -1) {
+      if (file.type === 'file' && file.checked) {
         $scope.selection.files.push(file);
-        if (file.type === 'file') {
-          $scope.selection.size += file.size;
-        }
-        if (file.type === 'dir') {
-          file.children.forEach(process);
-        }
-      }
-      if (!file.checked && index > -1) {
-        $scope.selection.files.splice(index, 1);
-        if (file.type === 'file') {
-          $scope.selection.size -= file.size;
-        }
-        if (file.type === 'dir') {
-          file.children.forEach(process);
-        }
+        $scope.selection.size += file.size;
+      } 
+      if (file.type === 'dir') {
+        file.children.forEach(process);
       }
     }
 
-    process(file);
+    $scope.selection.files = [];
+    $scope.selection.size = 0;
+    $scope.files.forEach(process);
   });
 
   $scope.downloadSelection = function() {
@@ -229,7 +219,7 @@ function(RecursionHelper, $timeout, Files) {
             fillChildren();
           }
         } else {
-          $scope.model.checked = !$scope.model.checked;
+          $scope.check();
         }
       };
 
@@ -256,14 +246,15 @@ function(RecursionHelper, $timeout, Files) {
             }
             model.children.forEach(function(child) {
               child.checked = true;
-              $scope.$emit('check:up', true, child);
               if (child.children) {
                 checkAll(child);
               }
             });
           }
+
           if ($scope.model.checked) {
             checkAll($scope.model);
+            $scope.$emit('check:up', $scope.model.checked, $scope.model);
           }
         });
       }
