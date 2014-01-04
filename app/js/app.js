@@ -42,21 +42,29 @@ dove.controller('FilesCtrl', ['$scope', 'Files', function($scope, Files) {
   };
 
   $scope.$on('check:up', function(e, val, file) {
-    var index = $scope.selection.files.indexOf(file);
-    if (val && index === -1) {
-      $scope.selection.files.push(file);
-      if (file.type === 'file') {
-        $scope.selection.size += file.size;
+    function process(file) {
+      var index = $scope.selection.files.indexOf(file);
+      if (file.checked && index === -1) {
+        $scope.selection.files.push(file);
+        if (file.type === 'file') {
+          $scope.selection.size += file.size;
+        }
+        if (file.type === 'dir') {
+          file.children.forEach(process);
+        }
       }
-      console.log('added', $scope.selection);
-    }
-    if (!val && index > -1) {
-      $scope.selection.files.splice(index, 1);
-      if (file.type === 'file') {
-        $scope.selection.size -= file.size;
+      if (!file.checked && index > -1) {
+        $scope.selection.files.splice(index, 1);
+        if (file.type === 'file') {
+          $scope.selection.size -= file.size;
+        }
+        if (file.type === 'dir') {
+          file.children.forEach(process);
+        }
       }
-      console.log('removed', $scope.selection);
     }
+
+    process(file);
   });
 
   $scope.downloadSelection = function() {
@@ -190,9 +198,7 @@ function(RecursionHelper, $timeout, Files) {
       };
 
       $scope.$on('check:down', function(e, val) {
-        if (val !== $scope.model.checked) {
-          $scope.model.checked = val;
-        }
+        $scope.model.checked = val;
       });
 
       $scope.$on('check:up', function(e, val) {
@@ -229,6 +235,9 @@ function(RecursionHelper, $timeout, Files) {
 
       function fillChildren(noLimit) {
         if ($scope.full || $scope.loading) return;
+        if ($scope.model.type !== 'dir') {
+          return;
+        }
         $scope.loading = true;
 
         var opts = {};
@@ -247,6 +256,7 @@ function(RecursionHelper, $timeout, Files) {
             }
             model.children.forEach(function(child) {
               child.checked = true;
+              $scope.$emit('check:up', true, child);
               if (child.children) {
                 checkAll(child);
               }
