@@ -30,7 +30,11 @@ dove.config(['$routeProvider', '$locationProvider',
 dove.controller('HomeCtrl', [function() {}]);
 
 dove.controller('FilesCtrl', ['$scope', 'Files', function($scope, Files) {
+  $scope.downloadType = '';
+
+  $scope.$emit('loading+');
   Files.query().then(function(contents) {
+    $scope.$emit('loading-');
     $scope.files = contents.files;
   }, function(err) {
     console.log('err', err);
@@ -55,15 +59,31 @@ dove.controller('FilesCtrl', ['$scope', 'Files', function($scope, Files) {
     $scope.selection.files = [];
     $scope.selection.size = 0;
     $scope.files.forEach(process);
+
+    if ($scope.selection.files.length > 1) {
+      $scope.downloadType = 'all as .zip';
+    } else if ($scope.selection.files.length === 1) {
+      $scope.downloadType = 'file';
+    } else {
+      $scope.downloadType = '';
+    }
   });
 
   $scope.downloadSelection = function() {
-    var url = '/bulk?';
-    url += $scope.selection.files.filter(function(sel) {
+    var toDownload = $scope.selection.files.filter(function(sel) {
       return sel.type === 'file';
-    }).map(function(sel) {
-      return 'files=' + sel.path;
-    }).join('&');
+    });
+    var url;
+
+    if (toDownload.length > 1) {
+      url = '/bulk?';
+      url += toDownload.map(function(sel) {
+        return 'files=' + sel.path;
+      }).join('&');
+
+    } else {
+      url = '/download?file=' + toDownload[0].path;
+    }
 
     window.location = url;
   };
@@ -229,6 +249,7 @@ function(RecursionHelper, $timeout, Files) {
           return;
         }
         $scope.loading = true;
+        $scope.$emit('loading+');
 
         var opts = {};
         if (noLimit) {
@@ -239,6 +260,7 @@ function(RecursionHelper, $timeout, Files) {
           $scope.model.children = data.files;
           $scope.model.full = true;
           $scope.loading = false;
+          $scope.$emit('loading-');
 
           function checkAll(model) {
             if (model.children === undefined || model.children === '...') {
@@ -283,6 +305,25 @@ dove.directive('niceSize', [function() {
         size = Math.round(size * 10) / 10;
         return size + units[unitIndex];
       };
+    },
+  };
+}]);
+
+dove.directive('loadingIndicator', ['$rootScope', function($rootScope) {
+  return {
+    template: '<div class="loading" ng-class="{show: loading > 0}"></div>',
+    restrict: 'E',
+    controller: function($scope) {
+      $scope.loading = 0;
+      $rootScope.$on('loading+', function() {
+        $scope.loading++;
+      });
+      $rootScope.$on('loading-', function() {
+        $scope.loading--
+        if ($scope.loading < 0) {
+          throw new Error('More loading- events than loading+ events.');
+        }
+      });
     },
   };
 }]);
